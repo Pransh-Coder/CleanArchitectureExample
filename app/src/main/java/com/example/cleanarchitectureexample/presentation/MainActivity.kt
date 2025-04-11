@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state  by  viewModel.userDataState.collectAsStateWithLifecycle()
             val context = LocalContext.current
+            //val error = rememberFlowWithLifecycle(flow = viewModel.errorEventsSharedFlow)
 
             LaunchedEffect(Unit) {
                 viewModel.errors.collectLatest {
@@ -45,20 +46,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-/*@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CleanArchitectureExampleTheme {
-        Greeting("Android")
-    }
-}*/

@@ -8,6 +8,7 @@ import com.example.cleanarchitectureexample.network.NetworkResponse
 import com.example.cleanarchitectureexample.presentation.uiState.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,15 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUseCase):ViewModel() {
 
-    private var _userDataState = MutableStateFlow(UserState(isLoading = false))
+    private val _userDataState = MutableStateFlow(UserState(isLoading = false))
     val userDataState : StateFlow<UserState>
         get() = _userDataState
 
     private val _errors = Channel<String>()
     var errors = _errors.receiveAsFlow()
-
-    private var _errorEvents = MutableSharedFlow<String>()
-    var errorEventsSharedFlow : SharedFlow<String> = _errorEvents
 
     fun getUsers(){
         viewModelScope.launch {
@@ -46,10 +44,10 @@ class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUse
                         _userDataState.value = userDataState.value.copy(isLoading = false, usersList = networkResponse.data)
                     }
                     is NetworkResponse.Error -> {
+                        Log.e(TAG, "getUsers: errorMsg = ${networkResponse.errorMessage}", )
                         _userDataState.value = userDataState.value.copy(isLoading = false)
 
                         _errors.send(networkResponse.errorMessage)
-                        _errorEvents.emit(networkResponse.errorMessage)
                     }
                 }
             }

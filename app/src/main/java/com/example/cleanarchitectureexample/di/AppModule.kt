@@ -1,12 +1,14 @@
 package com.example.cleanarchitectureexample.di
 
 import android.content.Context
+import androidx.room.Room
 import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.example.cleanarchitectureexample.network.ApiInterface
 import com.example.cleanarchitectureexample.Constants
-import com.example.cleanarchitectureexample.data.UserRepoInterface
-import com.example.cleanarchitectureexample.data.UsersRepositoryImpl
+import com.example.cleanarchitectureexample.Constants.DATABASE_NAME
+import com.example.cleanarchitectureexample.data.local.UserDao
+import com.example.cleanarchitectureexample.data.local.UserDataBase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
@@ -28,19 +30,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesBaseUrl():String{
+    fun providesBaseUrl(): String {
         return Constants.BASE_URL
     }
 
     @Provides
     @Singleton
-    fun provideGson():Gson{
+    fun provideGson(): Gson {
         return GsonBuilder().setStrictness(Strictness.LENIENT).create()
     }
 
     @Provides
     @Singleton
-    fun providesOkHttpClient(@ApplicationContext context: Context) : OkHttpClient {
+    fun providesOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
         val chuckerCollector = ChuckerCollector(
             context = context,
             showNotification = true,
@@ -52,7 +54,7 @@ object AppModule {
             .alwaysReadResponseBody(true)
             .build()
 
-        val httpLoggingInterceptor  = HttpLoggingInterceptor()
+        val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS)
 
@@ -60,9 +62,9 @@ object AppModule {
             .newBuilder()
             .addInterceptor(httpLoggingInterceptor)
             .addInterceptor(chuckerInterceptor)
-            .connectTimeout(600000,TimeUnit.SECONDS)
-            .readTimeout(60,TimeUnit.SECONDS)
-            .writeTimeout(60,TimeUnit.SECONDS)
+            .connectTimeout(600000, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 
@@ -77,10 +79,15 @@ object AppModule {
             .create(ApiInterface::class.java)
     }
 
-    /*//todo move this to a separate module
     @Provides
     @Singleton
-    fun provideUserRepository(apiInterface: ApiInterface): UserRepoInterface {
-        return UsersRepositoryImpl(apiInterface = apiInterface)
-    }*/
+    fun providesUserDataBase(@ApplicationContext context: Context): UserDataBase {
+        return Room.databaseBuilder(context, UserDataBase::class.java, DATABASE_NAME).build()
+    }
+
+    @Provides
+    @Singleton
+    fun providesUserDao(userDataBase: UserDataBase): UserDao {
+        return userDataBase.userDao()
+    }
 }

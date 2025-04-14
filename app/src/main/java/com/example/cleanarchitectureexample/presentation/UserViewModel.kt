@@ -40,7 +40,7 @@ class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUse
                     }
                     is NetworkResponse.Success -> {
                         delay(5000)
-                        Log.e(TAG, "getUsers: sucess data = ${networkResponse.data}", )
+                        Log.e(TAG, "getUsers: success data = ${networkResponse.data}", )
                         _userDataState.value = userDataState.value.copy(isLoading = false, usersList = networkResponse.data)
                     }
                     is NetworkResponse.Error -> {

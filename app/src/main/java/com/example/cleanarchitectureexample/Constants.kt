@@ -7,4 +7,8 @@ object Constants {
     const val CODE_200 = 200
 
     const val DATABASE_NAME = "user-db"
+
+    const val USERS_LIST_SCREEN = "users_list_screen"
+
+    const val USERS_DETAIL_SCREEN = "user_detail_screen"
 }

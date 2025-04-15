@@ -1,16 +1,23 @@
 package com.example.cleanarchitectureexample.presentation.composables
 
+import android.util.Log
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,18 +34,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.cleanarchitectureexample.Constants.USERS_DETAIL_SCREEN
+import com.example.cleanarchitectureexample.Constants.USERS_LIST_SCREEN
 import com.example.cleanarchitectureexample.data.remote.MappedUsersData
 import com.example.cleanarchitectureexample.presentation.uiState.UserState
+import java.nio.file.WatchEvent
+
+private const val TAG = "MainUIContentComposable"
 
 @Composable
 fun MainUIContentComposable(
     state: UserState,
-    onBackPress: () -> Unit = {}
+    onBackPress: () -> Unit = {},
 ) {
-    Scaffold(modifier = Modifier.fillMaxSize(),
+    val navController = rememberNavController()
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             ToolbarComposable(
                 onBackPress = {
@@ -61,10 +80,62 @@ fun MainUIContentComposable(
                 )
             }
         } else {
-            UsersListComposable(
-                modifier = Modifier.padding(innerPadding),
-                userList = state.usersList
-            )
+            NavHost(navController = navController, startDestination = USERS_LIST_SCREEN) {
+                composable(
+                    route = USERS_LIST_SCREEN,
+                    /*arguments = listOf(navArgument("user") {
+                        type = NavType.ParcelableType(MappedUsersData::class.java)
+                    }),*/
+                    enterTransition = {
+                        slideInHorizontally(
+                            animationSpec = tween(
+                                durationMillis = 100
+                            )
+                        ) { it }
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            animationSpec = tween(
+                                durationMillis = 100
+                            )
+                        ) { -it }
+                    }
+                ) {
+                    UsersListComposable(
+                        modifier = Modifier.padding(innerPadding),
+                        userList = state.usersList,
+                        onUserCardClicked = {
+                            //navigate to user detail screen
+                            navController.currentBackStackEntry?.savedStateHandle?.set("user", it)
+                            navController.navigate(USERS_DETAIL_SCREEN)
+                        }
+                    )
+                }
+                composable(
+                    route = USERS_DETAIL_SCREEN,
+                    enterTransition = {
+                        slideInHorizontally(
+                            animationSpec = tween(
+                                durationMillis = 100
+                            )
+                        ) { it }
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            animationSpec = tween(
+                                durationMillis = 100
+                            )
+                        ) { -it }
+                    }
+                ){
+                    val user = navController.previousBackStackEntry?.savedStateHandle?.get<MappedUsersData>("user")
+
+                    UserDetailScreenComposable(
+                        modifier = Modifier.padding(innerPadding),
+                        mappedUser = user
+                    )
+                }
+            }
         }
     }
 }
@@ -89,7 +160,8 @@ fun ToolbarComposable(
             IconButton(
                 onClick = {
                     onBackPress.invoke()
-                }) {
+                }
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "BackIcon",
@@ -104,7 +176,9 @@ fun ToolbarComposable(
 @Composable
 private fun UsersListComposable(
     modifier: Modifier = Modifier,
-    userList: List<MappedUsersData>? = listOf()) {
+    userList: List<MappedUsersData>? = listOf(),
+    onUserCardClicked: (MappedUsersData) -> Unit
+) {
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -112,24 +186,34 @@ private fun UsersListComposable(
             .padding(all = 5.dp)
     ) {
         items(userList?: emptyList()) {
-            UserItem(it)
+            UserItem(
+                usersData = it,
+                onUserCardClicked = {
+                //navigate to user detail screen
+                    onUserCardClicked.invoke(it)
+            })
         }
     }
 }
 
 @Composable
-fun UserItem(usersData: MappedUsersData) {
-    Card (modifier = Modifier
-        .padding(10.dp)
-        .fillMaxWidth()
-        .background(color = Color.White),
+fun UserItem(usersData: MappedUsersData, onUserCardClicked: (MappedUsersData) -> Unit) {
+    Card(
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth()
+            .background(color = Color.White),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .background(color = Color(0xFFFFEFEE))
-            .padding(5.dp)) {
+        Column(
+            modifier = Modifier
+                .clickable {
+                    onUserCardClicked.invoke(usersData)
+                }
+                .fillMaxWidth()
+                .background(color = Color(0xFFFFEFEE))
+                .padding(5.dp)) {
             Text(
                 text = "Name: ${usersData.name}",
                 color = Color.Black,
@@ -170,6 +254,75 @@ fun UserItem(usersData: MappedUsersData) {
     }
 }
 
+@Composable
+fun UserDetailScreenComposable(
+    modifier: Modifier = Modifier,
+    mappedUser: MappedUsersData?
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = Color(0xFFFFEFEE)),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Face,
+            contentDescription = "User Icon",
+            modifier = modifier
+                .size(100.dp)
+        )
+
+        Text(
+            text = "Name: ${mappedUser?.name ?: "Arvind"}",
+            color = Color.Black,
+            fontSize = 21.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+        )
+        Text(
+            text = "Email: ${mappedUser?.email ?: "arvind@gmail.com"}",
+            color = Color.Black,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(top = 5.dp)
+        )
+
+        Text(
+            text = "PhoneNum: ${mappedUser?.phone ?: "9008765443"}",
+            color = Color.Black,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(top = 5.dp)
+        )
+
+        Text(
+            text = "Address: ${mappedUser?.address ?: "45/65 Alshire, Dubai, UAE 26004"}",
+            color = Color.Black,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .padding(top = 5.dp, start = 16.dp, end = 16.dp)
+                .fillMaxWidth()
+        )
+
+        Text(
+            text = "Company: ${mappedUser?.company ?: "Vogo Automotive"}",
+            color = Color.Black,
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .padding(top = 5.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                .fillMaxWidth()
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun PreviewUserItem() {
@@ -182,7 +335,7 @@ private fun PreviewUserItem() {
         company = "BluSmart"
     )
 
-    UserItem(mockData)
+    UserItem(mockData, onUserCardClicked = {})
 }
 
 @Preview
@@ -213,7 +366,22 @@ private fun PreviewUsersListComposable() {
         )
     )
 
-    UsersListComposable(userList = usersList)
+    UsersListComposable(userList = usersList, onUserCardClicked = {})
+}
+
+@Preview
+@Composable
+private fun PreviewUserDetailScreenComposable() {
+    val mockData = MappedUsersData(
+        id = 1,
+        name = "Pransh",
+        email = "abc@12.com",
+        phone = "9008765443",
+        address = "Apt. 556 Kulas Light, Gwenborough, 92998-3874",
+        company = "BluSmart"
+    )
+
+    UserDetailScreenComposable(mappedUser = mockData)
 }
 
 @Preview

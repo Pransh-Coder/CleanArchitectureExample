@@ -13,6 +13,7 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2025.04.00"
 loggingInterceptor = "4.12.0"
+navigationCompose = "2.8.9"
 retrofit = "2.11.0"
 lifecycleRuntimeComposeAndroid = "2.8.7"
 roomCompiler = "2.7.0"
@@ -20,6 +21,7 @@ roomRuntime = "2.7.0"
 
 [libraries]
 
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

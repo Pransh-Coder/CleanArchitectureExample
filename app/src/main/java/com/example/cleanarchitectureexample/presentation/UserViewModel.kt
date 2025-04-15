@@ -31,15 +31,17 @@ class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUse
 
     fun getUsers(){
         viewModelScope.launch {
-            Log.e(TAG, "getUsers: ", )
-            getUsersDataUseCase.invoke().collectLatest { networkResponse ->
+            // Replaced `collectLatest` with `collect` to ensure we capture **all intermediate events**
+            // Using `collectLatest` was skipping early emissions like internet error message & was
+            // just getting the latest/last event i.e loading
+            getUsersDataUseCase.invoke().collect /*collectLatest*/{ networkResponse ->
                 when(networkResponse){
                     is NetworkResponse.Loading -> {
                         Log.e(TAG, "getUsers: Loading...", )
                         _userDataState.value = userDataState.value.copy(isLoading = true)
                     }
                     is NetworkResponse.Success -> {
-                        delay(5000)
+                        delay(5000) //added to show loader on UI
                         Log.e(TAG, "getUsers: success data = ${networkResponse.data}", )
                         _userDataState.value = userDataState.value.copy(isLoading = false, usersList = networkResponse.data)
                     }

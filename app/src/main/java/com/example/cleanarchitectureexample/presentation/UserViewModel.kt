@@ -8,13 +8,9 @@ import com.example.cleanarchitectureexample.network.NetworkResponse
 import com.example.cleanarchitectureexample.presentation.uiState.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,6 +22,13 @@ class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUse
     val userDataState : StateFlow<UserState>
         get() = _userDataState
 
+    //shared flow as name suggests are meant for mainly used when we have multiple subscribers/collectors to a single flow
+
+    //while channels on the other side are meant for just single subscriber/collector
+
+    // channels have an integrated buffer i.e if there are no collectors & we send an event into the channel,
+    // that actually ends up in the buffer & as soon as collector appear again that collector will then
+    // receive the event that was previously saved in channels buffer
     private val _errors = Channel<String>()
     var errors = _errors.receiveAsFlow()
 

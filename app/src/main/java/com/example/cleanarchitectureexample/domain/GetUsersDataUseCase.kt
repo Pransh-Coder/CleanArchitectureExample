@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class GetUsersDataUseCase @Inject constructor(private val repository: UserRepoInterface) {
 
-    operator fun invoke() = repository.getUsers().transform{
+    operator fun invoke() = repository.getUsers().transform {
         val sortedListByName = it.data?.sortedBy { it.name }
         when(it){
             is NetworkResponse.Loading -> {

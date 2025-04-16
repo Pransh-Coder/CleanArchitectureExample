@@ -43,13 +43,9 @@ object AppModule {
     @Provides
     @Singleton
     fun providesOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
-        val chuckerCollector = ChuckerCollector(
-            context = context,
-            showNotification = true,
-        )
 
         val chuckerInterceptor = ChuckerInterceptor.Builder(context)
-            .collector(chuckerCollector)
+            .collector(ChuckerCollector(context = context))
             .maxContentLength(250_000L)
             .alwaysReadResponseBody(true)
             .build()

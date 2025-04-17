@@ -22,6 +22,8 @@ class GetUsersDataUseCase @Inject constructor(private val repository: UserRepoIn
         }
     }
 
+    operator fun invoke(id: Int) = repository.getUserDetailsById(id)
+
 
     companion object{
         private const val TAG = "GetUsersDataUseCase"

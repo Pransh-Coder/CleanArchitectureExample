@@ -24,6 +24,8 @@ class MainActivity : ComponentActivity() {
 
         viewModel.getUsers()
 
+        viewModel.getUserById(id = 5)
+
         setContent {
             val state  by  viewModel.userDataState.collectAsStateWithLifecycle()
             val context = LocalContext.current

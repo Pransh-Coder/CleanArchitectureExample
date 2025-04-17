@@ -7,4 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface UserRepoInterface {
 
     fun getUsers() : Flow<NetworkResponse<List<MappedUsersData>>>
+
+    fun getUserDetailsById(id: Int): Flow<NetworkResponse<MappedUsersData>>
 }

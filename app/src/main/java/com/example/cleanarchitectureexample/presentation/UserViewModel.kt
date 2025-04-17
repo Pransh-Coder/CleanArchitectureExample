@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -58,6 +59,23 @@ class UserViewModel @Inject constructor(val getUsersDataUseCase: GetUsersDataUse
             }
         }
     }
+
+    fun getUserById(id: Int){
+        viewModelScope.launch {
+            getUsersDataUseCase.invoke(id).collectLatest {
+                when(it){
+                    is NetworkResponse.Success ->{
+                        Log.e(TAG, "getUserById: data = ${it.data}")
+                    }
+                    is NetworkResponse.Error ->{
+                        Log.e(TAG, "getUserById: error = ${it.errorMessage}")
+                    }
+                    else -> Unit
+                }
+            }
+        }
+    }
+
     companion object{
         private const val TAG = "UserViewModel"
     }

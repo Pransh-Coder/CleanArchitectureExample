@@ -1,7 +1,7 @@
 package com.example.cleanarchitectureexample.data
 
-import com.example.cleanarchitectureexample.data.local.UserEntity
 import com.example.cleanarchitectureexample.data.local.UserDao
+import com.example.cleanarchitectureexample.data.local.UserEntity
 import com.example.cleanarchitectureexample.data.remote.MappedUsersData
 import com.example.cleanarchitectureexample.data.remote.model.UsersData
 import com.example.cleanarchitectureexample.network.ApiInterface
@@ -59,6 +59,27 @@ class UsersRepositoryImpl @Inject constructor(
             } catch (exception: Exception) {
                 emit(NetworkResponse.Error(errorMessage = exception.message ?: "Something went wrong!"))
             }
+        }
+    }
+
+    override fun getUserDetailsById(id: Int): Flow<NetworkResponse<MappedUsersData>> {
+        return flow {
+            try {
+                val userEntityData = userDao.getUserDataById(id)
+
+                val mappedData = MappedUsersData(
+                    id = userEntityData.id,
+                    name = userEntityData.name,
+                    email = userEntityData.email,
+                    phone = userEntityData.phone,
+                    address = userEntityData.address,
+                    company = userEntityData.company
+                )
+                emit(NetworkResponse.Success(data = mappedData))
+            }catch (ex: Exception){
+                emit(NetworkResponse.Error(errorMessage = "Could not fetch the record from the table $ex"))
+            }
+
         }
     }
 

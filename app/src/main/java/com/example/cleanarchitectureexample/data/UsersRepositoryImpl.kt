@@ -13,6 +13,9 @@ import retrofit2.Response
 import java.net.UnknownHostException
 import javax.inject.Inject
 
+//A Repository is just a class that helps you manage and get data
+
+//The RepositoryImpl is the actual class that does the real work & says "how those functions work"
 class UsersRepositoryImpl @Inject constructor(
     private val apiInterface: ApiInterface,
     private val userDao: UserDao,

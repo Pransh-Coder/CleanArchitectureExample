@@ -1,6 +1,5 @@
 package com.example.cleanarchitectureexample.presentation.composables
 
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -43,9 +42,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.cleanarchitectureexample.Constants.USERS_DETAIL_SCREEN
 import com.example.cleanarchitectureexample.Constants.USERS_LIST_SCREEN
-import com.example.cleanarchitectureexample.data.remote.MappedUsersData
+import com.example.cleanarchitectureexample.presentation.UsersData
 import com.example.cleanarchitectureexample.presentation.uiState.UserState
-import java.nio.file.WatchEvent
 
 private const val TAG = "MainUIContentComposable"
 
@@ -128,7 +126,7 @@ fun MainUIContentComposable(
                         ) { -it }
                     }
                 ){
-                    val user = navController.previousBackStackEntry?.savedStateHandle?.get<MappedUsersData>("user")
+                    val user = navController.previousBackStackEntry?.savedStateHandle?.get<UsersData>("user")
 
                     UserDetailScreenComposable(
                         modifier = Modifier.padding(innerPadding),
@@ -176,8 +174,8 @@ fun ToolbarComposable(
 @Composable
 private fun UsersListComposable(
     modifier: Modifier = Modifier,
-    userList: List<MappedUsersData>? = listOf(),
-    onUserCardClicked: (MappedUsersData) -> Unit
+    userList: List<UsersData>? = listOf(),
+    onUserCardClicked: (UsersData) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -197,7 +195,7 @@ private fun UsersListComposable(
 }
 
 @Composable
-fun UserItem(usersData: MappedUsersData, onUserCardClicked: (MappedUsersData) -> Unit) {
+fun UserItem(usersData: UsersData, onUserCardClicked: (UsersData) -> Unit) {
     Card(
         modifier = Modifier
             .padding(10.dp)
@@ -257,7 +255,7 @@ fun UserItem(usersData: MappedUsersData, onUserCardClicked: (MappedUsersData) ->
 @Composable
 fun UserDetailScreenComposable(
     modifier: Modifier = Modifier,
-    mappedUser: MappedUsersData?
+    mappedUser: UsersData?
 ) {
     Column(
         modifier = modifier
@@ -326,7 +324,7 @@ fun UserDetailScreenComposable(
 @Preview
 @Composable
 private fun PreviewUserItem() {
-    val mockData = MappedUsersData(
+    val mockData = UsersData(
         id = 1,
         name = "Pransh",
         email = "abc@12.com",
@@ -348,7 +346,7 @@ private fun PreviewToolbarComposable() {
 @Composable
 private fun PreviewUsersListComposable() {
     val usersList = listOf(
-        MappedUsersData(
+        UsersData(
             id = 1,
             name = "Pransh",
             email = "abc@12.com",
@@ -356,7 +354,7 @@ private fun PreviewUsersListComposable() {
             address = "Apt. 556 Kulas Light, Gwenborough, 92998-3874",
             company = "BluSmart"
         ),
-        MappedUsersData(
+        UsersData(
             id = 2,
             name = "Ashutosh",
             email = "xzw@12.com",
@@ -372,7 +370,7 @@ private fun PreviewUsersListComposable() {
 @Preview
 @Composable
 private fun PreviewUserDetailScreenComposable() {
-    val mockData = MappedUsersData(
+    val mockData = UsersData(
         id = 1,
         name = "Pransh",
         email = "abc@12.com",
@@ -388,7 +386,7 @@ private fun PreviewUserDetailScreenComposable() {
 @Composable
 private fun PreviewMainUIContentComposable() {
     val usersList = listOf(
-        MappedUsersData(
+        UsersData(
             id = 1,
             name = "Pransh",
             email = "abc@12.com",
@@ -396,7 +394,7 @@ private fun PreviewMainUIContentComposable() {
             address = "Apt. 556 Kulas Light, Gwenborough, 92998-3874",
             company = "BluSmart"
         ),
-        MappedUsersData(
+        UsersData(
             id = 2,
             name = "Ashutosh",
             email = "xzw@12.com",

@@ -1,15 +1,19 @@
 package com.example.cleanarchitectureexample.data
 
-import com.example.cleanarchitectureexample.data.remote.MappedUsersData
-import com.example.cleanarchitectureexample.network.NetworkResponse
+import com.example.cleanarchitectureexample.data.local.UserEntity
+import com.example.cleanarchitectureexample.presentation.UsersData
+import com.example.cleanarchitectureexample.data.remote.model.UsersResponse
+import com.example.cleanarchitectureexample.network.Resource
 import kotlinx.coroutines.flow.Flow
 
 //An interface is like a contract - "telling what functions are available"
 interface UserRepoInterface {
 
-    fun getUsers() : Flow<NetworkResponse<List<MappedUsersData>>>
+    suspend fun getUsersFromNetwork() : Resource<List<UsersResponse>>
 
-    fun getUserDetailsById(id: Int): Flow<NetworkResponse<MappedUsersData>>
+    fun getUsersFromDataBase() : Flow<Resource<List<UserEntity>>>
+
+    //fun getUserDetailsById(id: Int): Flow<Resource<UsersData>>
 }
 
 /*

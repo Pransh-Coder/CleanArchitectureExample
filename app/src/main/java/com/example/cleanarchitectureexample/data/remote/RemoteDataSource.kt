@@ -11,19 +11,19 @@ class RemoteDataSource @Inject constructor(private val apiInterface: ApiInterfac
     suspend fun getUserListFromNetwork() : Resource<List<UsersResponse>>{
 
         val networkResponse = apiInterface.getUsers()
-        try {
+        return try {
             if (networkResponse.body() != null && networkResponse.isSuccessful){
-                return Resource.Success(data = networkResponse.body()!!)
+                Resource.Success(data = networkResponse.body()!!)
             }
             else{
-                return Resource.Error(errorMessage = networkResponse.errorBody().toString())
+                Resource.Error(errorMessage = networkResponse.errorBody().toString())
             }
         }
         catch (ex: UnknownHostException){
-            return Resource.NoInternetConnection()
+            Resource.NoInternetConnection()
         }
         catch (ex:Exception){
-            return Resource.Error("Exception is $ex")
+            Resource.Error("Exception is $ex")
         }
     }
 }
